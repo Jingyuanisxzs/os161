@@ -202,13 +202,13 @@ lock_release(struct lock *lock)
         lock->lock_thread = NULL;
         wchan_wakeone(lock->lock_wchan, &lock->lock_spinlock);
         spinlock_release(&lock->lock_spinlock);
+
 }
 
 bool
 lock_do_i_hold(struct lock *lock)
 {
         // Write this
-
         bool ret;
 
         DEBUGASSERT(lock != NULL);
