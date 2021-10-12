@@ -1,0 +1,40 @@
+Answer to code reading exercises:
+
+1. What happens to a thread when it exits (i.e., calls thread_exit())? What about when it sleeps?
+
+Ans:
+thread_exit() function call happens at kern/thread/thread.c, line 834, the following occurred: 1. reference count for the current working directory is decreased. 2. Virtual address space for the current thread is cleared. 3. Stack guard band is checked 4. Disable interrupts for the processor. 5. Thread state switch to zombie state
+
+When it sleeps, function call happens at kern/thread/thread.c, line 1155:It yield the cpu to another process, and go to sleep, on the specified * wait channel WC, whose associated spinlock is LK.
+
+2. What function(s) handle(s) a context switch?
+thread_switch() in thread.c
+
+3. What does it mean for a thread to be in each of the possible thread states?
+S_RUN: the thread is running
+S_READY: the thread is ready to run
+S_SLEEP: the thread is sleeping
+S_ZOMBIE: the thread has finished running but not deleted yet.
+
+4. What does it mean to turn interrupts off? How is this accomplished? Why is it important to turn off interrupts in the thread subsystem code?
+It means the current thread will not be disabled and switched to another thread with interrupts turned off. This is accomplished by by calling splhigh() and set SPL to high. It is important because so that the thread can properly exit.
+
+5. What happens when a thread wakes up another thread? How does a sleeping thread get to run again?
+wchan_wakeone() at thread.c is called to wake up a thread sleeping on a wait channel.
+
+6. What function(s) choose(s) the next thread to run?
+thread_switch(), schedule(), thread_consider_migration()
+
+7. How does it (do they) pick the next thread?
+The next thread is determined by calling threadlist_remhead()
+
+8. What role does the hardware timer play in scheduling? What hardware independent function is called on a timer interrupt?
+The hardware timer periodically calls hardclock() in hardclock.c. 
+The hardclock() function will call thread_yield to switch the current thread to to another 
+thread.
+
+9. Describe how wchan_sleep() and wchan_wakeone() are used to implement semaphores.
+wchan_sleep is called when the semaphore counts decrease to 0. While wachan_wakeone() will  be called to wake up a thread when the semaphore count increments.
+
+10. How does the implementation of wchan ensure that a thread never misses a wakeup signal: that another thread cannot attempt to awaken the first thread just as it is preparing to sleep, but before it is actually placed into the sleep queue?
+A thread_lists of waiting thread is created such that all any threads preparing to sleep will not be placed in the list. Thus will not receive a wakeup signal.
