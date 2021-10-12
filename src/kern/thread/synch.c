@@ -181,7 +181,7 @@ lock_acquire(struct lock *lock)
         // Write this
         spinlock_acquire(&lock->lock_spinlock);
 
-        while(lock->lk_busy){
+        while(lock->lock_busy){
             wchan_sleep(lock->lock_wchan, &lock->lock_spinlock);
         }
 
